@@ -2,14 +2,23 @@ import json
 import requests
 import azure.functions as func
 import logging
+import os
 
 SUPABASE_URL = "https://cekzzpatfrnzoymkwfun.supabase.co"
-SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_KEY_HERE"  # ok to keep in app settings later; for now hardcode for speed
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
+ # ok to keep in app settings later; for now hardcode for speed
 
 app = func.FunctionApp()
 
 @app.route(route="hello", auth_level=func.AuthLevel.ANONYMOUS)
 def hello(req: func.HttpRequest) -> func.HttpResponse:
+    if not SUPABASE_ANON_KEY:
+       return func.HttpResponse(
+           json.dumps({"ok": False, "error": "Missing SUPABASE_ANON_KEY app setting"}, indent=2),
+           status_code=500,
+           mimetype="application/json",
+    )
+
     auth = req.headers.get("authorization", "")
     if not auth.lower().startswith("bearer "):
         return func.HttpResponse(
