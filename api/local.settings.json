@@ -3,7 +3,8 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNla3p6cGF0ZnJuem95bWt3ZnVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyOTI2MDksImV4cCI6MjA4NTg2ODYwOX0.4h0F5v54kE4atLvRNNxxdnIzmddiMaiu1uNz9pbu31E"
+    "SUPABASE_ANON_KEY": "sb_publishable_JzjhZJiPAtdeDhsRM69NKg_3KzxjjFj",
+    "SUPABASE_URL":"https://cekzzpatfrnzoymkwfun.supabase.co"
 
   }
 }
