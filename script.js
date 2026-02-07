@@ -90,6 +90,29 @@ async function initAuth() {
     }
   });
 
+  $("btnCallApi").addEventListener("click", async () => {
+  try {
+    const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+    if (sessionErr) return setStatus(`Session error: ${sessionErr.message}`);
+
+    const token = sessionData.session?.access_token;
+    if (!token) return setStatus("Not signed in. Sign in first, then call the API.");
+
+    const res = await fetch("api/hello", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const text = await res.text();
+    setStatus(`API status: ${res.status}\n\n${text}`);
+  } catch (e) {
+    setStatus(`API call exception: ${e?.message ?? e}`);
+  }
+});
+
+
   // Show initial session state
   const { data: sessionData } = await supabase.auth.getSession();
   setStatus(sessionData.session ? `Session active.\nUser: ${sessionData.session.user.email}` : "Not signed in.");
