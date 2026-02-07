@@ -3,7 +3,7 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "SUPABASE_ANON_KEY": "sb_publishable_ipGA4BBFOqr-jqmvmzviHQ_H-LlDAFq"
+    "SUPABASE_ANON_KEY": "aa8ae1b6-40cd-41da-9492-ba96b9c4b775"
 
   }
 }
