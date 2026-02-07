@@ -4,8 +4,8 @@ import azure.functions as func
 import logging
 import os
 
-SUPABASE_URL = "https://cekzzpatfrnzoymkwfun.supabase.co"
-SUPABASE_ANON_KEY = "sb_secret_5BK95JcGa1dkNQKtlHrHKg_xECyKqSW"
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
  # ok to keep in app settings later; for now hardcode for speed
 
 app = func.FunctionApp()
