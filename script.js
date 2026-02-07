@@ -101,7 +101,7 @@ async function initAuth() {
     const res = await fetch("api/hello", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "X-Supabase-Token": token,
       },
     });
 
