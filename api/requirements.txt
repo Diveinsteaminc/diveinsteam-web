@@ -6,3 +6,4 @@ azure-functions
 
 PyJWT[crypto]==2.10.1
 requests==2.32.3
+psycopg[binary]==3.2.3

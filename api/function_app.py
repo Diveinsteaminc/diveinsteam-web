@@ -3,6 +3,7 @@ import json
 import logging
 import requests
 import azure.functions as func
+import psycopg
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_PUBLISHABLE_KEY = os.environ.get("SUPABASE_ANON_KEY", "")  # publishable/anon key
@@ -59,6 +60,38 @@ def hello(req: func.HttpRequest) -> func.HttpResponse:
 
     except Exception as e:
         logging.exception("Token validation failed")
+        return func.HttpResponse(
+            json.dumps({"ok": False, "error": str(e)}, indent=2),
+            status_code=500,
+            mimetype="application/json",
+        )
+
+
+
+@app.route(route="db-ping", auth_level=func.AuthLevel.ANONYMOUS)
+def db_ping(req: func.HttpRequest) -> func.HttpResponse:
+    try:
+        conn = psycopg.connect(
+            host=os.environ["PGHOST"],
+            user=os.environ["PGUSER"],
+            password=os.environ["PGPASSWORD"],
+            dbname=os.environ["PGDATABASE"],
+            port=int(os.environ.get("PGPORT", 5432)),
+            sslmode="require",
+            connect_timeout=5,
+        )
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1;")
+            cur.fetchone()
+        conn.close()
+
+        return func.HttpResponse(
+            json.dumps({"ok": True, "db": "reachable"}, indent=2),
+            status_code=200,
+            mimetype="application/json",
+        )
+
+    except Exception as e:
         return func.HttpResponse(
             json.dumps({"ok": False, "error": str(e)}, indent=2),
             status_code=500,
