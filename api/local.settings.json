@@ -4,7 +4,13 @@
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "SUPABASE_ANON_KEY": "sb_publishable_JzjhZJiPAtdeDhsRM69NKg_3KzxjjFj",
-    "SUPABASE_URL":"https://cekzzpatfrnzoymkwfun.supabase.co"
+    "SUPABASE_URL":"https://cekzzpatfrnzoymkwfun.supabase.co",
+    "PGHOST": "divein-api-server.postgres.database.azure.com",
+    "PGUSER": "ixrpuntwmw",
+    "PGPORT": "5432",
+    "PGDATABASE": "postgres",
+    "PGPASSWORD": "$pZKuvEH1TKwGpFr"
+
 
   }
 }
