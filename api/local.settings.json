@@ -6,9 +6,9 @@
     "SUPABASE_ANON_KEY": "sb_publishable_JzjhZJiPAtdeDhsRM69NKg_3KzxjjFj",
     "SUPABASE_URL":"https://cekzzpatfrnzoymkwfun.supabase.co",
     "PGHOST": "divein-api-server.postgres.database.azure.com",
-    "PGUSER": "ixrpuntwmw",
+    "PGUSER": "xzmgqycfkg",
     "PGPORT": "5432",
-    "PGDATABASE": "postgres",
+    "PGDATABASE": "divein-api-database",
     "PGPASSWORD": "$pZKuvEH1TKwGpFr"
 
 
