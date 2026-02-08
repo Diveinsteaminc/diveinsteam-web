@@ -2,8 +2,7 @@
 // Safe to keep the anon key in frontend. NEVER put the service_role key in the browser.
 
 const SUPABASE_URL = "https://cekzzpatfrnzoymkwfun.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNla3p6cGF0ZnJuem95bWt3ZnVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyOTI2MDksImV4cCI6MjA4NTg2ODYwOX0.4h0F5v54kE4atLvRNNxxdnIzmddiMaiu1uNz9pbu31E";
+const SUPABASE_ANON_KEY = "sb_publishable_JzjhZJiPAtdeDhsRM69NKg_3KzxjjFj";
 
 // Load Supabase JS client from CDN (no build tools needed)
 const supabaseScript = document.createElement("script");
@@ -98,7 +97,13 @@ async function initAuth() {
     const token = sessionData.session?.access_token;
     if (!token) return setStatus("Not signed in. Sign in first, then call the API.");
 
-    const res = await fetch("api/hello", {
+    const apiUrl =
+         window.location.hostname === "localhost"
+         ? "http://localhost:7071/api/me"
+        : "/api/me";
+
+const res = await fetch(apiUrl, {
+
       method: "GET",
       headers: {
         "X-Supabase-Token": token,

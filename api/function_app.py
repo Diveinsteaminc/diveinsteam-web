@@ -97,3 +97,101 @@ def db_ping(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500,
             mimetype="application/json",
         )
+
+
+@app.route(route="me", auth_level=func.AuthLevel.ANONYMOUS)
+def me(req: func.HttpRequest) -> func.HttpResponse:
+    token = req.headers.get("x-supabase-token", "")
+    if not token:
+        return func.HttpResponse(
+            json.dumps({"ok": False, "error": "Missing X-Supabase-Token"}, indent=2),
+            status_code=401,
+            mimetype="application/json",
+        )
+
+    # Step 1: validate token with Supabase
+    try:
+        r = requests.get(
+            f"{SUPABASE_URL}/auth/v1/user",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "apikey": SUPABASE_PUBLISHABLE_KEY,
+            },
+            timeout=10,
+        )
+        if r.status_code != 200:
+            return func.HttpResponse(
+                json.dumps({"ok": False, "error": "Invalid session"}, indent=2),
+                status_code=401,
+                mimetype="application/json",
+            )
+        user = r.json()
+        user_id = user.get("id")
+        email = user.get("email")
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"ok": False, "error": str(e)}, indent=2),
+            status_code=500,
+            mimetype="application/json",
+        )
+
+    # Step 2: fetch app role from Postgres
+    try:
+        conn = psycopg.connect(
+            host=os.environ["PGHOST"],
+            user=os.environ["PGUSER"],
+            password=os.environ["PGPASSWORD"],
+            dbname=os.environ["PGDATABASE"],
+            port=int(os.environ.get("PGPORT", 5432)),
+            sslmode="require",
+        )
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT app_role, status
+                FROM app_users
+                WHERE user_id = %s
+                """,
+                (user_id,),
+            )
+            row = cur.fetchone()
+        conn.close()
+
+        if not row:
+            return func.HttpResponse(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "error": "User not registered in app",
+                        "user_id": user_id,
+                    },
+                    indent=2,
+                ),
+                status_code=403,
+                mimetype="application/json",
+            )
+
+        app_role, status = row
+
+        return func.HttpResponse(
+            json.dumps(
+                {
+                    "ok": True,
+                    "user_id": user_id,
+                    "email": email,
+                    "app_role": app_role,
+                    "status": status,
+                },
+                indent=2,
+            ),
+            status_code=200,
+            mimetype="application/json",
+        )
+
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"ok": False, "error": str(e)}, indent=2),
+            status_code=500,
+            mimetype="application/json",
+        )
+
