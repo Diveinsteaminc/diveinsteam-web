@@ -5,11 +5,11 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "SUPABASE_ANON_KEY": "sb_publishable_JzjhZJiPAtdeDhsRM69NKg_3KzxjjFj",
     "SUPABASE_URL":"https://cekzzpatfrnzoymkwfun.supabase.co",
-    "PGHOST": "divein-api-server.postgres.database.azure.com",
-    "PGUSER": "xzmgqycfkg",
+    "PGHOST": "diveinsteam-publicdb.postgres.database.azure.com",
+    "PGUSER": "diveinsteam_pgadmin",
     "PGPORT": "5432",
-    "PGDATABASE": "divein-api-database",
-    "PGPASSWORD": "$pZKuvEH1TKwGpFr"
+    "PGDATABASE": "postgres",
+    "PGPASSWORD": "fwju!U#aOyNBI2g@PJKC3Lg"
 
 
   }
