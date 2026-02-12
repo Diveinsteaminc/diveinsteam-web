@@ -4,9 +4,27 @@ import logging
 import requests
 import azure.functions as func
 import psycopg
+from datetime import datetime
+
+
+from auth import require_user, AuthError
+from db import get_conn
+from graph_mailer import send_booking_confirmed_email
+
+
+from routes.availability import handle as availability_handle
+from routes.bookings import create as bookings_create
+from routes.booking_confirm import handle as booking_confirm_handle
+from routes.booking_cancel import handle as booking_cancel_handle
+
+
+
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_PUBLISHABLE_KEY = os.environ.get("SUPABASE_ANON_KEY", "")  # publishable/anon key
+
+IS_LOCAL = os.environ.get("AZURE_FUNCTIONS_ENVIRONMENT") == "Development"
+
 
 app = func.FunctionApp()
 
@@ -110,30 +128,18 @@ def me(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     # Step 1: validate token with Supabase
+    
     try:
-        r = requests.get(
-            f"{SUPABASE_URL}/auth/v1/user",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "apikey": SUPABASE_PUBLISHABLE_KEY,
-            },
-            timeout=10,
-        )
-        if r.status_code != 200:
-            return func.HttpResponse(
-                json.dumps({"ok": False, "error": "Invalid session"}, indent=2),
-                status_code=401,
-                mimetype="application/json",
-            )
-        user = r.json()
-        user_id = user.get("id")
-        email = user.get("email")
-    except Exception as e:
-        return func.HttpResponse(
-            json.dumps({"ok": False, "error": str(e)}, indent=2),
-            status_code=500,
+       user_ctx = require_user(req)
+       user_id = user_ctx["user_id"]
+       email = user_ctx["email"]
+    except AuthError as e:
+         return func.HttpResponse(
+            json.dumps({"ok": False, "error": e.message}, indent=2),
+            status_code=e.status_code,
             mimetype="application/json",
-        )
+    )
+
 
     # Step 2: fetch app role from Postgres
     try:
@@ -194,4 +200,64 @@ def me(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500,
             mimetype="application/json",
         )
+    
 
+
+# Availability endpoint
+
+@app.route(route="availability", methods=["GET"], auth_level=func.AuthLevel.ANONYMOUS)
+def get_availability(req: func.HttpRequest) -> func.HttpResponse:
+    return availability_handle(req)
+  
+#Booking endpoint
+
+@app.route(route="bookings", methods=["POST"], auth_level=func.AuthLevel.ANONYMOUS)
+def create_booking(req: func.HttpRequest) -> func.HttpResponse:
+    return bookings_create(req)
+
+@app.route(route="bookings/confirm", methods=["POST"], auth_level=func.AuthLevel.ANONYMOUS)
+def confirm_booking(req: func.HttpRequest) -> func.HttpResponse:
+    return booking_confirm_handle(req)
+
+@app.route(route="bookings/cancel", methods=["POST"], auth_level=func.AuthLevel.ANONYMOUS)
+def cancel_booking(req: func.HttpRequest) -> func.HttpResponse:
+    return booking_cancel_handle(req)
+
+
+@app.route(route="email-test", methods=["POST"], auth_level=func.AuthLevel.ANONYMOUS)
+def email_test(req: func.HttpRequest) -> func.HttpResponse:
+    try:
+        body = req.get_json()
+    except ValueError:
+        return func.HttpResponse(
+            '{"ok": false, "error": "Invalid JSON"}',
+            status_code=400,
+            mimetype="application/json",
+        )
+
+    to_email = body.get("to")
+    if not to_email:
+        return func.HttpResponse(
+            '{"ok": false, "error": "Required field: to"}',
+            status_code=400,
+            mimetype="application/json",
+        )
+
+    try:
+        send_booking_confirmed_email(
+            from_user=os.environ["M365_FROM_USER"],
+            to_emails=[to_email],
+            subject="DiveInSTEAM Graph Email Test",
+            body_text="This is a test email sent via Microsoft Graph.",
+        )
+        return func.HttpResponse(
+            '{"ok": true}',
+            status_code=200,
+            mimetype="application/json",
+        )
+    except Exception as e:
+        return func.HttpResponse(
+            f'{{"ok": false, "error": "{str(e)}"}}',
+            status_code=500,
+            mimetype="application/json",
+        )
