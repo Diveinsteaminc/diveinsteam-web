@@ -16,6 +16,8 @@ from routes.availability import handle as availability_handle
 from routes.bookings import create as bookings_create
 from routes.booking_confirm import handle as booking_confirm_handle
 from routes.booking_cancel import handle as booking_cancel_handle
+from routes.bookings_list import handle as bookings_list_handle
+
 
 
 
@@ -222,6 +224,10 @@ def confirm_booking(req: func.HttpRequest) -> func.HttpResponse:
 @app.route(route="bookings/cancel", methods=["POST"], auth_level=func.AuthLevel.ANONYMOUS)
 def cancel_booking(req: func.HttpRequest) -> func.HttpResponse:
     return booking_cancel_handle(req)
+
+@app.route(route="bookings", methods=["GET"], auth_level=func.AuthLevel.ANONYMOUS)
+def list_bookings(req: func.HttpRequest) -> func.HttpResponse:
+    return bookings_list_handle(req)
 
 
 @app.route(route="email-test", methods=["POST"], auth_level=func.AuthLevel.ANONYMOUS)
